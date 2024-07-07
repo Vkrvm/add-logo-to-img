@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const downloadButton = document.getElementById('download-button');
     const imageGallery = document.getElementById('image-gallery');
     const logoPositionSelect = document.getElementById('logo-position');
-    const logoSizeInput = document.getElementById('logo-size');
+    const logoWidthInput = document.getElementById('logo-width');
+    const logoHeightInput = document.getElementById('logo-height');
     let logoSrc = '';
 
     uploadButton.addEventListener('click', function() {
@@ -78,7 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.height = img.naturalHeight;
             ctx.drawImage(img, 0, 0);
             
-            const logoSize = parseInt(logoSizeInput.value);
+            const logoWidth = parseInt(logoWidthInput.value);
+            const logoHeight = parseInt(logoHeightInput.value);
             const position = logoPositionSelect.value;
             let x = 0;
             let y = 0;
@@ -89,20 +91,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     y = 10;
                     break;
                 case 'top-right':
-                    x = canvas.width - logoSize - 10;
+                    x = canvas.width - logoWidth - 10;
                     y = 10;
                     break;
                 case 'bottom-left':
                     x = 10;
-                    y = canvas.height - logoSize - 10;
+                    y = canvas.height - logoHeight - 10;
                     break;
                 case 'bottom-right':
-                    x = canvas.width - logoSize - 10;
-                    y = canvas.height - logoSize - 10;
+                    x = canvas.width - logoWidth - 10;
+                    y = canvas.height - logoHeight - 10;
                     break;
             }
 
-            ctx.drawImage(logo, x, y, logoSize, logoSize);
+            ctx.drawImage(logo, x, y, logoWidth, logoHeight);
             img.src = canvas.toDataURL();
         };
     }
