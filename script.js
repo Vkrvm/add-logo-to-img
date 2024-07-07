@@ -42,26 +42,26 @@ document.addEventListener('DOMContentLoaded', function() {
     applyLogoButton.addEventListener('click', function() {
         const images = document.querySelectorAll('.image-preview img');
         showOverlay();
-        images.forEach(img => {
+        const tasks = Array.from(images).map(img => {
             const container = img.parentElement;
             const resizeWidth = resizeWidthInput.value;
             const resizeHeight = resizeHeightInput.value;
             const shouldResize = resizeEnableCheckbox.checked;
 
             if (shouldResize) {
-                resizeAndCropImage(img, resizeWidth, resizeHeight, function(croppedImg) {
-                    applyLogoToImage(croppedImg, function(finalImg) {
+                return resizeImage(img, resizeWidth, resizeHeight).then(resizedImg => {
+                    return applyLogoToImage(resizedImg).then(finalImg => {
                         container.replaceChild(finalImg, img);
-                        hideOverlay();
                     });
                 });
             } else {
-                applyLogoToImage(img, function(finalImg) {
+                return applyLogoToImage(img).then(finalImg => {
                     container.replaceChild(finalImg, img);
-                    hideOverlay();
                 });
             }
         });
+
+        Promise.all(tasks).then(() => hideOverlay());
     });
 
     downloadButton.addEventListener('click', function() {
@@ -92,73 +92,90 @@ document.addEventListener('DOMContentLoaded', function() {
         imageGallery.appendChild(div);
     }
 
-    function resizeAndCropImage(img, width, height, callback) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const imgWidth = img.naturalWidth;
-        const imgHeight = img.naturalHeight;
-        const startX = Math.max(0, (imgWidth - width) / 2);
-        const startY = Math.max(0, (imgHeight - height) / 2);
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, startX, startY, width, height, 0, 0, width, height);
-
-        const resizedImg = new Image();
-        resizedImg.src = canvas.toDataURL();
-        resizedImg.onload = function() {
-            callback(resizedImg);
-        };
-    }
-
-    function applyLogoToImage(img, callback) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const logo = new Image();
-        logo.src = logoSrc;
-
-        logo.onload = function() {
+    function resizeImage(img, maxWidth, maxHeight) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             const imgWidth = img.naturalWidth;
             const imgHeight = img.naturalHeight;
 
-            canvas.width = imgWidth;
-            canvas.height = imgHeight;
-            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+            let width = imgWidth;
+            let height = imgHeight;
 
-            const logoWidth = parseInt(logoWidthInput.value);
-            const logoHeight = parseInt(logoHeightInput.value);
-            const position = logoPositionSelect.value;
-            const offset = 40;
-            let x = 0;
-            let y = 0;
+            if (width > maxWidth || height > maxHeight) {
+                const aspectRatio = width / height;
 
-            switch (position) {
-                case 'top-left':
-                    x = offset;
-                    y = offset;
-                    break;
-                case 'top-right':
-                    x = imgWidth - logoWidth - offset;
-                    y = offset;
-                    break;
-                case 'bottom-left':
-                    x = offset;
-                    y = imgHeight - logoHeight - offset;
-                    break;
-                case 'bottom-right':
-                    x = imgWidth - logoWidth - offset;
-                    y = imgHeight - logoHeight - offset;
-                    break;
+                if (width > height) {
+                    width = maxWidth;
+                    height = Math.round(maxWidth / aspectRatio);
+                } else {
+                    height = maxHeight;
+                    width = Math.round(maxHeight * aspectRatio);
+                }
             }
 
-            ctx.drawImage(logo, x, y, logoWidth, logoHeight);
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
 
-            const finalImg = new Image();
-            finalImg.src = canvas.toDataURL();
-            finalImg.onload = function() {
-                callback(finalImg);
+            const resizedImg = new Image();
+            resizedImg.src = canvas.toDataURL();
+            resizedImg.onload = function() {
+                resolve(resizedImg);
             };
-        };
+        });
+    }
+
+    function applyLogoToImage(img) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const logo = new Image();
+            logo.src = logoSrc;
+
+            logo.onload = function() {
+                const imgWidth = img.naturalWidth;
+                const imgHeight = img.naturalHeight;
+
+                canvas.width = imgWidth;
+                canvas.height = imgHeight;
+                ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+
+                const logoWidth = parseInt(logoWidthInput.value);
+                const logoHeight = parseInt(logoHeightInput.value);
+                const position = logoPositionSelect.value;
+                const offset = 40;
+                let x = 0;
+                let y = 0;
+
+                switch (position) {
+                    case 'top-left':
+                        x = offset;
+                        y = offset;
+                        break;
+                    case 'top-right':
+                        x = imgWidth - logoWidth - offset;
+                        y = offset;
+                        break;
+                    case 'bottom-left':
+                        x = offset;
+                        y = imgHeight - logoHeight - offset;
+                        break;
+                    case 'bottom-right':
+                        x = imgWidth - logoWidth - offset;
+                        y = imgHeight - logoHeight - offset;
+                        break;
+                }
+
+                ctx.drawImage(logo, x, y, logoWidth, logoHeight);
+
+                const finalImg = new Image();
+                finalImg.src = canvas.toDataURL();
+                finalImg.onload = function() {
+                    resolve(finalImg);
+                };
+            };
+        });
     }
 
     function downloadImage(img) {

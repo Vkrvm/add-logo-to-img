@@ -40,20 +40,25 @@ button:hover {
 
 #image-gallery {
     margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .image-preview {
     position: relative;
-    display: inline-block;
     margin: 10px;
     border: 1px solid #ddd;
     padding: 10px;
     border-radius: 5px;
     background-color: #f8f9fa;
     text-align: left;
+    width: 150px; /* Adjust the width as needed */
 }
 
 .image-preview img {
+    max-width: 100%;
+    height: auto;
     display: block;
     margin-bottom: 10px;
 }
@@ -64,6 +69,7 @@ button:hover {
     color: white;
     padding: 5px;
     border-radius: 5px;
+    width: 100%;
 }
 
 .image-preview button:hover {
