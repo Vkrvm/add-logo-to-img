@@ -12,6 +12,15 @@
         <input type="file" id="image-upload" multiple>
         <button id="upload-button">Upload Images</button>
         <input type="file" id="logo-upload">
+        <label for="logo-position">Logo Position:</label>
+        <select id="logo-position">
+            <option value="top-left">Top Left</option>
+            <option value="top-right">Top Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="bottom-right" selected>Bottom Right</option>
+        </select>
+        <label for="logo-size">Logo Size:</label>
+        <input type="number" id="logo-size" value="30" min="10" max="100"> px
         <button id="apply-logo-button">Apply Logo to Images</button>
         <button id="download-button">Download All Images</button>
         <div id="image-gallery"></div>

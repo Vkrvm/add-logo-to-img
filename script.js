@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyLogoButton = document.getElementById('apply-logo-button');
     const downloadButton = document.getElementById('download-button');
     const imageGallery = document.getElementById('image-gallery');
+    const logoPositionSelect = document.getElementById('logo-position');
+    const logoSizeInput = document.getElementById('logo-size');
     let logoSrc = '';
 
     uploadButton.addEventListener('click', function() {
@@ -75,10 +77,32 @@ document.addEventListener('DOMContentLoaded', function() {
             canvas.width = img.naturalWidth;
             canvas.height = img.naturalHeight;
             ctx.drawImage(img, 0, 0);
-            const logoWidth = logo.width / 4;
-            const logoHeight = logo.height / 4;
-            ctx.drawImage(logo, canvas.width - logoWidth - 10, canvas.height - logoHeight - 10, logoWidth, logoHeight);
+            
+            const logoSize = parseInt(logoSizeInput.value);
+            const position = logoPositionSelect.value;
+            let x = 0;
+            let y = 0;
 
+            switch(position) {
+                case 'top-left':
+                    x = 10;
+                    y = 10;
+                    break;
+                case 'top-right':
+                    x = canvas.width - logoSize - 10;
+                    y = 10;
+                    break;
+                case 'bottom-left':
+                    x = 10;
+                    y = canvas.height - logoSize - 10;
+                    break;
+                case 'bottom-right':
+                    x = canvas.width - logoSize - 10;
+                    y = canvas.height - logoSize - 10;
+                    break;
+            }
+
+            ctx.drawImage(logo, x, y, logoSize, logoSize);
             img.src = canvas.toDataURL();
         };
     }

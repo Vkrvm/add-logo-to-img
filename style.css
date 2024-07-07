@@ -3,7 +3,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
 }
@@ -17,7 +16,7 @@ body {
     text-align: center;
 }
 
-input, button {
+input, select, button {
     width: 100%;
     padding: 10px;
     margin: 5px 0;
@@ -66,13 +65,4 @@ button:hover {
 
 .image-preview button:hover {
     background-color: #c82333;
-}
-
-.logo-overlay {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    max-width: 30px;
-    max-height: 30px;
-    opacity: 0.8;
 }
