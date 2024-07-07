@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoPositionSelect = document.getElementById('logo-position');
     const logoWidthInput = document.getElementById('logo-width');
     const logoHeightInput = document.getElementById('logo-height');
+    const resizeEnableCheckbox = document.getElementById('resize-enable');
+    const resizeWidthInput = document.getElementById('resize-width');
+    const resizeHeightInput = document.getElementById('resize-height');
+    const overlay = document.getElementById('overlay');
     let logoSrc = '';
 
     uploadButton.addEventListener('click', function() {
@@ -37,16 +41,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     applyLogoButton.addEventListener('click', function() {
         const images = document.querySelectorAll('.image-preview img');
+        showOverlay();
         images.forEach(img => {
-            applyLogoToImage(img);
+            const container = img.parentElement;
+            const resizeWidth = resizeWidthInput.value;
+            const resizeHeight = resizeHeightInput.value;
+            const shouldResize = resizeEnableCheckbox.checked;
+
+            if (shouldResize) {
+                resizeAndCropImage(img, resizeWidth, resizeHeight, function(croppedImg) {
+                    applyLogoToImage(croppedImg, function(finalImg) {
+                        container.replaceChild(finalImg, img);
+                        hideOverlay();
+                    });
+                });
+            } else {
+                applyLogoToImage(img, function(finalImg) {
+                    container.replaceChild(finalImg, img);
+                    hideOverlay();
+                });
+            }
         });
     });
 
     downloadButton.addEventListener('click', function() {
         const images = document.querySelectorAll('.image-preview img');
+        showOverlay();
         images.forEach(img => {
             downloadImage(img);
         });
+        hideOverlay();
     });
 
     function addImageToGallery(src, name) {
@@ -68,44 +92,72 @@ document.addEventListener('DOMContentLoaded', function() {
         imageGallery.appendChild(div);
     }
 
-    function applyLogoToImage(img) {
+    function resizeAndCropImage(img, width, height, callback) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const imgWidth = img.naturalWidth;
+        const imgHeight = img.naturalHeight;
+        const startX = Math.max(0, (imgWidth - width) / 2);
+        const startY = Math.max(0, (imgHeight - height) / 2);
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, startX, startY, width, height, 0, 0, width, height);
+
+        const resizedImg = new Image();
+        resizedImg.src = canvas.toDataURL();
+        resizedImg.onload = function() {
+            callback(resizedImg);
+        };
+    }
+
+    function applyLogoToImage(img, callback) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const logo = new Image();
         logo.src = logoSrc;
 
         logo.onload = function() {
-            canvas.width = img.naturalWidth;
-            canvas.height = img.naturalHeight;
-            ctx.drawImage(img, 0, 0);
-            
+            const imgWidth = img.naturalWidth;
+            const imgHeight = img.naturalHeight;
+
+            canvas.width = imgWidth;
+            canvas.height = imgHeight;
+            ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+
             const logoWidth = parseInt(logoWidthInput.value);
             const logoHeight = parseInt(logoHeightInput.value);
             const position = logoPositionSelect.value;
+            const offset = 40;
             let x = 0;
             let y = 0;
 
-            switch(position) {
+            switch (position) {
                 case 'top-left':
-                    x = 10;
-                    y = 10;
+                    x = offset;
+                    y = offset;
                     break;
                 case 'top-right':
-                    x = canvas.width - logoWidth - 10;
-                    y = 10;
+                    x = imgWidth - logoWidth - offset;
+                    y = offset;
                     break;
                 case 'bottom-left':
-                    x = 10;
-                    y = canvas.height - logoHeight - 10;
+                    x = offset;
+                    y = imgHeight - logoHeight - offset;
                     break;
                 case 'bottom-right':
-                    x = canvas.width - logoWidth - 10;
-                    y = canvas.height - logoHeight - 10;
+                    x = imgWidth - logoWidth - offset;
+                    y = imgHeight - logoHeight - offset;
                     break;
             }
 
             ctx.drawImage(logo, x, y, logoWidth, logoHeight);
-            img.src = canvas.toDataURL();
+
+            const finalImg = new Image();
+            finalImg.src = canvas.toDataURL();
+            finalImg.onload = function() {
+                callback(finalImg);
+            };
         };
     }
 
@@ -116,5 +168,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+    }
+
+    function showOverlay() {
+        overlay.style.visibility = 'visible';
+    }
+
+    function hideOverlay() {
+        overlay.style.visibility = 'hidden';
     }
 });
