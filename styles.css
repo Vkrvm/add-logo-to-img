@@ -12,12 +12,8 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 300px;
+    width: 500px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 input, select, button {
@@ -26,16 +22,51 @@ input, select, button {
     margin: 5px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
 button {
     background-color: #007bff;
     color: white;
     border: none;
+    cursor: pointer;
 }
 
 button:hover {
     background-color: #0056b3;
+}
+
+.tab {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.tab button {
+    background-color: blue;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    margin-inline: 10px;
+}
+
+.tab button:hover {
+    background-color: #ddd;
+}
+
+.tab button.active {
+    background-color: #ccc;
+}
+
+.tabcontent {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
 }
 
 #image-gallery {
@@ -74,6 +105,11 @@ button:hover {
 
 .image-preview button:hover {
     background-color: #c82333;
+}
+
+.input-group {
+    margin: 10px 0;
+    text-align: left;
 }
 
 #overlay {
